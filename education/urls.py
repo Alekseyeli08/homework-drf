@@ -1,7 +1,10 @@
-from rest_framework.routers import SimpleRouter
-from education.views import CourseViewSet, LessonCreateAPIView, LessonUpdateAPIView, LessonListAPIView, LessonDestroyAPIView, LessonRetrieveAPIView
-from education.apps import EducationConfig
 from django.urls import path
+from rest_framework.routers import SimpleRouter
+
+from education.apps import EducationConfig
+from education.views import (CourseViewSet, LessonCreateAPIView,
+                             LessonDestroyAPIView, LessonListAPIView,
+                             LessonRetrieveAPIView, LessonUpdateAPIView)
 
 app_name = EducationConfig.name
 
