@@ -9,32 +9,32 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         payments_list = [
             {
-                'user': User.objects.get(pk=1),
+                'user': User.objects.get(pk=3),
                 'payment_date': '2024-03-01',
-                'paid_course': Course.objects.get(pk=2),
-                'paid_lesson': Lesson.objects.get(pk=2),
-                'payment_amount': '1200',
+                'paid_course': Course.objects.get(pk=5),
+                'paid_lesson': Lesson.objects.get(pk=6),
+                'payment_amount': 1200,
                 'payment_method': 'TRANSFER'},
             {
-                'user': User.objects.get(pk=1),
+                'user': User.objects.get(pk=3),
                 'payment_date': '2024-03-01',
-                'paid_course': Course.objects.get(pk=3),
-                'paid_lesson': Lesson.objects.get(pk=3),
-                'payment_amount': '800',
+                'paid_course': Course.objects.get(pk=5),
+                'paid_lesson': Lesson.objects.get(pk=5),
+                'payment_amount': 800,
                 'payment_method': 'CASH'},
             {
-                'user': User.objects.get(pk=1),
+                'user': User.objects.get(pk=3),
                 'payment_date': '2024-03-01',
-                'paid_course': Course.objects.get(pk=2),
-                'paid_lesson': Lesson.objects.get(pk=3),
-                'payment_amount': '2200',
+                'paid_course': Course.objects.get(pk=6),
+                'paid_lesson': Lesson.objects.get(pk=7),
+                'payment_amount': 2200,
                 'payment_method': 'CASH'},
             {
-                'user': User.objects.get(pk=1),
+                'user': User.objects.get(pk=3),
                 'payment_date': '2024-03-01',
-                'paid_course': Course.objects.get(pk=3),
-                'paid_lesson': Lesson.objects.get(pk=2),
-                'payment_amount': '1800',
+                'paid_course': Course.objects.get(pk=6),
+                'paid_lesson': Lesson.objects.get(pk=8),
+                'payment_amount': 1800,
                 'payment_method': 'TRANSFER'},
         ]
 

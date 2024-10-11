@@ -9,7 +9,7 @@ class Course(models.Model):
     course_image = models.ImageField(**NULLABLE, upload_to='education/image/', verbose_name='превью')
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.course_name}'
 
     class Meta:
         verbose_name = 'Курс'
@@ -25,7 +25,7 @@ class Lesson(models.Model):
 
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.lesson_name}'
 
     class Meta:
         verbose_name = 'Урок'
