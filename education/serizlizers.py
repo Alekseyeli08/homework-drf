@@ -1,12 +1,22 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, CharField
 
-from education.models import Course, Lesson
+from education.models import Course, Lesson, Subscriptions
+from education.validators import validate_forbidden_url
 
 
 class CourseSerializer(ModelSerializer):
+    is_sub = SerializerMethodField(read_only=True)
+
+    def get_is_sub(self, course):
+        owner = self.context['request'].user
+        subscription = Subscriptions.objects.filter(course=course.id, user=owner.id)
+        if subscription:
+            return True
+        return False
+
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = ('course_name', 'course_discription', 'course_image', 'owner', 'is_sub')
 
 
 class CourseDetailSerializer(ModelSerializer):
@@ -21,10 +31,16 @@ class CourseDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('course_name', 'course_discription', 'count_lesson', 'lesson')
+        fields = ('course_name', 'course_discription', 'count_lesson', 'lesson',  'is_sub')
 
 
 class LessonSerializer(ModelSerializer):
+    lesson_link = CharField(validators=[validate_forbidden_url])
     class Meta:
         model = Lesson
+        fields = '__all__'
+
+class SubscriptionsSerializer(ModelSerializer):
+    class Meta:
+        model = Subscriptions
         fields = '__all__'

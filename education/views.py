@@ -1,17 +1,19 @@
-from rest_framework.generics import (CreateAPIView, DestroyAPIView,
-                                     ListAPIView, RetrieveAPIView,
-                                     UpdateAPIView)
+from rest_framework import generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from education.models import Course, Lesson
+from education.models import Course, Lesson, Subscriptions
+from education.paginations import CustomPagination
 from education.serizlizers import (CourseDetailSerializer, CourseSerializer,
-                                   LessonSerializer)
+                                   LessonSerializer, SubscriptionsSerializer)
 from users.permissions import IsModer, IsOwner
 
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -33,7 +35,7 @@ class CourseViewSet(ModelViewSet):
         return super().get_permissions()
 
 
-class LessonCreateAPIView(CreateAPIView):
+class LessonCreateAPIView(generics.CreateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = (~IsModer, IsAuthenticated)
@@ -44,25 +46,49 @@ class LessonCreateAPIView(CreateAPIView):
         lesson.save()
 
 
-
-class LessonListAPIView(ListAPIView):
+class LessonListAPIView(generics.ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = CustomPagination
 
 
-
-class LessonRetrieveAPIView(RetrieveAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    permission_classes = (IsAuthenticated, IsModer | IsOwner)
-
-class LessonUpdateAPIView(UpdateAPIView):
+class LessonRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = (IsAuthenticated, IsModer | IsOwner)
 
 
-class LessonDestroyAPIView(DestroyAPIView):
+class LessonUpdateAPIView(generics.UpdateAPIView):
+    queryset = Lesson.objects.all()
+    serializer_class = LessonSerializer
+    permission_classes = (IsAuthenticated, IsModer | IsOwner)
+
+
+class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = (IsAuthenticated, IsOwner)
+
+
+class SubscriptionsCreateAPIView(generics.CreateAPIView):
+    queryset = Subscriptions.objects.all()
+    serializer_class = SubscriptionsSerializer
+    permission_classes = (~IsModer, IsAuthenticated)
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        course_id = self.request.data.get('course')
+        course_item = get_object_or_404(Course, pk=course_id)
+        subs_item = Subscriptions.objects.filter(user=user, course=course_item)
+        if subs_item.exists():
+            subs_item.delete()
+            message = 'подписка удалена'
+        else:
+            Subscriptions.objects.create(user=user, course=course_item)
+            message = 'подписка добавлена'
+        return Response({"message": message})
+
+
+class SubscriptionsListAPIView(generics.ListAPIView):
+    queryset = Subscriptions.objects.all()
+    serializer_class = SubscriptionsSerializer
