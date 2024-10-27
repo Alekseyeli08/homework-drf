@@ -31,7 +31,7 @@ class CourseDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('course_name', 'course_discription', 'count_lesson', 'lesson',  'is_sub')
+        fields = ('course_name', 'course_discription', 'count_lesson', 'lesson')
 
 
 class LessonSerializer(ModelSerializer):

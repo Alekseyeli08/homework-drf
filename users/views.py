@@ -6,6 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from users.models import Payments, User
 
 from .serializers import UserSerializer, PaymentSerializer
+from .services import create_stripe_product, create_stripe_price, create_stripe_session
 
 
 class PaymentsViewSet(ModelViewSet):
@@ -15,6 +16,23 @@ class PaymentsViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     ordering_fields = ('payment_date',)
 
+
+class PaymentsCreateAPIView(generics.CreateAPIView):
+    serializer_class = PaymentSerializer
+    queryset = Payments.objects.all()
+
+    def perform_create(self, serializer):
+        payment = serializer.save()
+        payment.user = self.request.user
+        stripe_product_id = create_stripe_product(payment)
+        payment.amount = payment.payment_amount
+        price = create_stripe_price(
+            stripe_product_id=stripe_product_id, amount=payment.amount
+        )
+        session_id, payment_link = create_stripe_session(price=price)
+        payment.session_id = session_id
+        payment.payment_url = payment_link
+        payment.save()
 
 class UserCreateAPIView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -43,3 +61,5 @@ class UserUpdateAPIView(generics.UpdateAPIView):
 
 class UserDeleteAPIView(generics.DestroyAPIView):
     queryset = User.objects.all()
+
+
