@@ -9,11 +9,12 @@ from education.paginations import CustomPagination
 from education.serizlizers import (CourseDetailSerializer, CourseSerializer,
                                    LessonSerializer, SubscriptionsSerializer)
 from users.permissions import IsModer, IsOwner
-
+from education.tasks import mail_update_course_info
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     pagination_class = CustomPagination
+    serializer_class = CourseSerializer
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -25,6 +26,11 @@ class CourseViewSet(ModelViewSet):
         course.owner = self.request.user
         course.save()
 
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        mail_update_course_info.delay(instance.pk)
+        return instance
+
     def get_permissions(self):
         if self.action == 'create':
             self.permission_classes = (IsAuthenticated, ~IsModer,)
@@ -33,6 +39,10 @@ class CourseViewSet(ModelViewSet):
         elif self.action == "destroy":
             self.permission_classes = (IsAuthenticated, ~IsModer | IsOwner,)
         return super().get_permissions()
+
+
+
+
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
